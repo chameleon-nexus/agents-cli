@@ -1,0 +1,71 @@
+{
+  "name": "@chameleon-nexus/agents-cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for managing AI agents from the Chameleon Agents Registry",
+  "main": "dist/index.js",
+  "bin": {
+    "agents": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/cli.ts",
+    "start": "node dist/cli.js",
+    "watch": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "cli",
+    "claude",
+    "codex",
+    "copilot",
+    "development",
+    "automation"
+  ],
+  "author": "Chameleon Nexus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chameleon-nexus/agents-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chameleon-nexus/agents-cli/issues"
+  },
+  "homepage": "https://github.com/chameleon-nexus/agents-cli#readme",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "axios": "^1.6.0",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "inquirer": "^9.2.12",
+    "fs-extra": "^11.1.1",
+    "yaml": "^2.3.4",
+    "semver": "^7.5.4",
+    "cli-table3": "^0.6.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "@types/inquirer": "^9.0.7",
+    "@types/fs-extra": "^11.0.4",
+    "@types/semver": "^7.5.4",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.50.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ]
+}

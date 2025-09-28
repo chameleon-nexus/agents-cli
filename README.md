@@ -2,19 +2,17 @@
 
 A command-line interface for managing AI agents from the Chameleon Agents Registry.
 
-## Installation
+## 🚀 Installation
 
 ```bash
-# Install via npm (coming soon)
+# Install globally via npm
 npm install -g @chameleon-nexus/agents-cli
 
-# Or install from source
-git clone https://github.com/chameleon-nexus/agents-cli.git
-cd agents-cli
-go build -o agents ./cmd/agents
+# Verify installation
+agents --version
 ```
 
-## Usage
+## 📖 Usage
 
 ### Search Agents
 ```bash
@@ -29,21 +27,34 @@ agents search --category development
 
 # Search by tag
 agents search --tag typescript
+
+# Filter by CLI compatibility
+agents search --compatibility claude-code
+
+# Sort results
+agents search --sort downloads
+agents search --sort rating
 ```
 
 ### Install Agents
 ```bash
 # Install specific agent
-agents install chameleon-team/code-reviewer
-
-# Install to specific CLI
-agents install chameleon-team/code-reviewer --cli claude-code
-
-# Install latest version
-agents install chameleon-team/code-reviewer@latest
+agents install python-pro
 
 # Install specific version
-agents install chameleon-team/code-reviewer@1.0.0
+agents install python-pro --version 1.0.0
+
+# Install to specific CLI
+agents install python-pro --target codex
+
+# Install multiple agents
+agents install python-pro code-reviewer debugger
+
+# Force reinstall
+agents install python-pro --force
+
+# Dry run (preview only)
+agents install python-pro --dry-run
 ```
 
 ### List Agents
@@ -56,46 +67,65 @@ agents list --installed
 
 # List by category
 agents list --category development
+
+# Check for updates
+agents list --updates
+
+# JSON output
+agents list --json
 ```
 
-### Agent Information
+### Update Agents
 ```bash
-# Show agent details
-agents info chameleon-team/code-reviewer
+# Update all agents
+agents update
 
-# Show agent versions
-agents versions chameleon-team/code-reviewer
+# Update specific agents
+agents update python-pro code-reviewer
+
+# Check for updates only
+agents update --check
+
+# Dry run
+agents update --dry-run
 ```
 
-### Publish Agents
+### Configuration
 ```bash
-# Publish new agent (coming soon)
-agents publish ./my-agent.md
+# Show current config
+agents config --show
 
-# Update existing agent
-agents update chameleon-team/my-agent ./my-agent.md
+# Edit config interactively
+agents config --edit
+
+# Reset to defaults
+agents config --reset
 ```
 
-## Configuration
+## ⚙️ Configuration
 
-The CLI uses a configuration file at `~/.agents-cli/config.json`:
+The CLI creates a configuration file at `~/.agents-cli/config.yaml`:
 
-```json
-{
-  "registry": "https://raw.githubusercontent.com/chameleon-nexus/agents-registry/main",
-  "defaultCli": "claude-code",
-  "installPath": "~/.agents",
-  "cacheExpiry": 3600
-}
+```yaml
+registry:
+  url: https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master
+  cacheTtl: 300
+
+install:
+  target: claude-code
+  directory: ~/.agents
+
+logging:
+  level: info
 ```
 
-## Supported CLI Tools
+## 🎯 Supported CLI Tools
 
 - **Claude Code**: Official Claude CLI tool
-- **Codex**: OpenAI Codex CLI (coming soon)
-- **Copilot**: GitHub Copilot CLI (coming soon)
+- **Codex**: OpenAI Codex CLI
+- **Copilot**: GitHub Copilot CLI
 
-## Development
+## 🛠️ Development
 
 ```bash
 # Clone the repository
@@ -103,27 +133,51 @@ git clone https://github.com/chameleon-nexus/agents-cli.git
 cd agents-cli
 
 # Install dependencies
-go mod tidy
+npm install
 
-# Build
-go build -o agents ./cmd/agents
+# Build the project
+npm run build
+
+# Run in development mode
+npm run dev search
 
 # Run tests
-go test ./...
+npm test
 
-# Run with development registry
-export AGENTS_REGISTRY_URL="http://localhost:8080"
-./agents search
+# Lint code
+npm run lint
 ```
 
-## API
+## 📦 Publishing
+
+```bash
+# Build and publish to npm
+npm run build
+npm publish
+```
+
+## 🌐 API
 
 The CLI communicates with the Agents Registry via GitHub Raw API:
 
 - **Registry Index**: `GET /registry.json`
-- **Agent Metadata**: `GET /agents/{author}/{name}/metadata.json`
-- **Agent File**: `GET /agents/{author}/{name}/agent.md`
+- **Agent Metadata**: `GET /agents/{author}/{id}/metadata.json`
+- **Agent File**: `GET /agents/{author}/{id}/agent.md`
 
-## License
+## 🤝 Contributing
 
-MIT License
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- [Chameleon Agents Registry](https://github.com/chameleon-nexus/agents-registry)
+- [VS Code Extension](https://github.com/chameleon-nexus/Chameleon)
+- [Documentation](https://github.com/chameleon-nexus/agents-cli/docs)

@@ -1,0 +1,30 @@
+# Source files
+src/
+tsconfig.json
+.eslintrc.js
+
+# Development
+.git/
+.github/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tests
+test/
+tests/
+*.test.ts
+*.test.js
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts (keep dist/)
+*.tsbuildinfo
