@@ -4,7 +4,7 @@
   "description": "Command-line interface for managing AI agents from the Chameleon Agents Registry",
   "main": "dist/index.js",
   "bin": {
-    "agents": "./dist/cli.js"
+    "agents": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -29,7 +29,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/chameleon-nexus/agents-cli.git"
+    "url": "git+https://github.com/chameleon-nexus/agents-cli.git"
   },
   "bugs": {
     "url": "https://github.com/chameleon-nexus/agents-cli/issues"
