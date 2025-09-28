@@ -10,6 +10,23 @@ npm install -g @chameleon-nexus/agents-cli
 
 # Verify installation
 agents --version
+agents --help
+```
+
+## ⚡ Quick Start
+
+```bash
+# Search for Python-related agents
+agents search python
+
+# Install a popular agent
+agents install python-pro
+
+# List all your installed agents
+agents list --installed
+
+# Check for updates
+agents update --check
 ```
 
 ## 📖 Usage
@@ -44,17 +61,22 @@ agents install python-pro
 # Install specific version
 agents install python-pro --version 1.0.0
 
-# Install to specific CLI
+# Install to specific CLI target
+agents install python-pro --target claude-code
 agents install python-pro --target codex
+agents install python-pro --target copilot
 
 # Install multiple agents
 agents install python-pro code-reviewer debugger
 
-# Force reinstall
+# Force reinstall (overwrite existing)
 agents install python-pro --force
 
-# Dry run (preview only)
+# Dry run (preview only, no actual installation)
 agents install python-pro --dry-run
+
+# Skip confirmation prompts
+agents install python-pro --yes
 ```
 
 ### List Agents
@@ -150,19 +172,26 @@ npm run lint
 
 ## 📦 Publishing
 
+The package is published to npm as `@chameleon-nexus/agents-cli`.
+
+For maintainers:
 ```bash
 # Build and publish to npm
 npm run build
-npm publish
+npm publish --access public
+
+# Create git tag for release
+git tag v1.0.0
+git push origin v1.0.0
 ```
 
 ## 🌐 API
 
 The CLI communicates with the Agents Registry via GitHub Raw API:
 
-- **Registry Index**: `GET /registry.json`
-- **Agent Metadata**: `GET /agents/{author}/{id}/metadata.json`
-- **Agent File**: `GET /agents/{author}/{id}/agent.md`
+- **Registry Index**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/registry.json`
+- **Agent Metadata**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/metadata.json`
+- **Agent File**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/agent.md`
 
 ## 🤝 Contributing
 
