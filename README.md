@@ -2,6 +2,8 @@
 
 A command-line interface for managing AI agents from the Chameleon Agents Registry.
 
+> **Note**: This is a simplified version focused on browsing, searching, and installing agents. Publishing and authentication features will be added in future releases.
+
 ## 🚀 Installation
 
 ```bash
@@ -47,6 +49,14 @@ agt search --tag typescript
 
 # Filter by CLI compatibility
 agt search --compatibility claude-code
+
+# Filter by language (only show agents with content in specified language)
+agt search --language zh        # Only Chinese agents
+agt search --language en        # Only English agents
+agt search --language ja        # Only Japanese agents
+
+# Combined filters
+agt search "Python" --language zh --category development
 
 # Sort results
 agt search --sort downloads

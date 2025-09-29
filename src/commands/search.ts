@@ -11,6 +11,7 @@ export const searchCommand = new Command('search')
   .option('-t, --tag <tag>', 'filter by tag')
   .option('-a, --author <author>', 'filter by author')
   .option('--compatibility <cli>', 'filter by CLI compatibility (claude-code, codex, copilot)')
+  .option('--language <lang>', 'filter by language (en, zh, ja, etc.) - only shows agents with content in specified language')
   .option('-s, --sort <field>', 'sort by field (downloads, rating, name, updated)', 'downloads')
   .option('-l, --limit <number>', 'limit number of results', '20')
   .option('--json', 'output as JSON')
@@ -23,6 +24,7 @@ export const searchCommand = new Command('search')
         tag: options.tag,
         author: options.author,
         compatibility: options.compatibility,
+        language: options.language,
         sortBy: options.sort,
         limit: parseInt(options.limit),
       };

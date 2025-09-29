@@ -6,7 +6,6 @@ import { searchCommand } from './commands/search';
 import { installCommand } from './commands/install';
 import { listCommand } from './commands/list';
 import { updateCommand } from './commands/update';
-import { publishCommand } from './commands/publish';
 import { configCommand } from './commands/config';
 
 const program = new Command();
@@ -14,7 +13,7 @@ const program = new Command();
 program
   .name('agt')
   .description('AGT - AI Agent Management Tool for Chameleon Registry')
-  .version('1.1.0')
+  .version('1.3.0')
   .option('-v, --verbose', 'verbose output')
   .option('--registry <url>', 'registry URL')
   .option('--config <path>', 'config file path');
@@ -24,7 +23,6 @@ program.addCommand(searchCommand);
 program.addCommand(installCommand);
 program.addCommand(listCommand);
 program.addCommand(updateCommand);
-program.addCommand(publishCommand);
 program.addCommand(configCommand);
 
 // Global error handler

@@ -3,19 +3,21 @@ export interface AgentInfo {
   name: {
     en: string;
     zh: string;
+    ja: string;
   };
   description: {
     en: string;
     zh: string;
+    ja: string;
   };
   author: string;
   category: string;
   tags: string[];
-  latest: string;
-  versions: string[];
+  version: string;
+  versions: Record<string, any>;
   downloads: number;
   rating: number;
-  ratingCount: number;
+  ratingCount?: number;
   license: string;
   compatibility: {
     claudeCode?: {
@@ -36,25 +38,42 @@ export interface AgentInfo {
   homepage?: string;
   repository?: string;
   documentation?: string;
+  files?: {
+    latest: string;
+  };
 }
 
 export interface Registry {
   version: string;
   lastUpdated: string;
   totalAgents: number;
-  agents: Record<string, AgentInfo>;
+  languages: string[];
   categories: Record<string, CategoryInfo>;
+  featured: {
+    count: number;
+    url: string;
+    description: {
+      en: string;
+      zh: string;
+      ja: string;
+    };
+  };
   stats: RegistryStats;
 }
 
 export interface CategoryInfo {
-  en: string;
-  zh: string;
+  count: number;
+  url: string;
+  name: {
+    en: string;
+    zh: string;
+    ja: string;
+  };
   description: {
     en: string;
     zh: string;
+    ja: string;
   };
-  icon: string;
 }
 
 export interface RegistryStats {
@@ -69,6 +88,7 @@ export interface SearchFilters {
   tag?: string;
   author?: string;
   compatibility?: 'claudeCode' | 'codex' | 'copilot';
+  language?: string;  // 新增：语言过滤条件 (en, zh, ja, etc.)
   sortBy?: 'downloads' | 'rating' | 'name' | 'updated';
   limit?: number;
 }

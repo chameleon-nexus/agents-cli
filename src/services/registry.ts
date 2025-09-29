@@ -15,15 +15,22 @@ export class RegistryService {
 
   async getRegistry(): Promise<Registry> {
     return this.fetchWithCache('registry', async () => {
-      const url = `${this.registryUrl}/registry.json`;
+      const url = `${this.registryUrl}/index/main.json`;
       const response = await axios.get(url);
       return response.data;
     });
   }
 
   async searchAgents(query: string = '', filters: SearchFilters = {}): Promise<AgentInfo[]> {
-    const registry = await this.getRegistry();
-    let agents = Object.values(registry.agents);
+    let agents: AgentInfo[] = [];
+
+    if (filters.category) {
+      // Fetch specific category
+      agents = await this.getCategoryAgents(filters.category);
+    } else {
+      // Fetch featured agents or all categories
+      agents = await this.getAllAgents();
+    }
 
     // Filter by query
     if (query) {
@@ -31,8 +38,10 @@ export class RegistryService {
       agents = agents.filter(agent => 
         agent.name.en.toLowerCase().includes(lowerQuery) ||
         agent.name.zh.toLowerCase().includes(lowerQuery) ||
+        agent.name.ja.toLowerCase().includes(lowerQuery) ||
         agent.description.en.toLowerCase().includes(lowerQuery) ||
         agent.description.zh.toLowerCase().includes(lowerQuery) ||
+        agent.description.ja.toLowerCase().includes(lowerQuery) ||
         agent.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
       );
     }
@@ -70,6 +79,13 @@ export class RegistryService {
       });
     }
 
+    // Language filter - only show agents with content in specified language
+    if (filters.language) {
+      agents = agents.filter(agent => {
+        return this.hasLanguageContent(agent, filters.language!);
+      });
+    }
+
     // Sort results
     if (filters.sortBy) {
       agents.sort((a, b) => {
@@ -96,9 +112,47 @@ export class RegistryService {
     return agents;
   }
 
+  /**
+   * Check if agent has content in specified language
+   */
+  private hasLanguageContent(agent: any, language: string): boolean {
+    // Check name field
+    if (this.hasLocalizedField(agent.name, language)) {
+      return true;
+    }
+    
+    // Check description field
+    if (this.hasLocalizedField(agent.description, language)) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /**
+   * Check if a field has content in specified language
+   */
+  private hasLocalizedField(field: any, language: string): boolean {
+    if (!field) return false;
+    
+    // If field is a string, consider it as default language content
+    if (typeof field === 'string') {
+      return language === 'en'; // Assume string fields are English
+    }
+    
+    // If field is an object, check for the specific language
+    if (typeof field === 'object' && field[language]) {
+      const content = field[language];
+      return typeof content === 'string' && content.trim().length > 0;
+    }
+    
+    return false;
+  }
+
   async getAgentDetails(agentId: string): Promise<AgentInfo | null> {
-    const registry = await this.getRegistry();
-    return registry.agents[agentId] || null;
+    // Search through all agents to find the one with matching ID
+    const allAgents = await this.getAllAgents();
+    return allAgents.find(agent => agent.id === agentId) || null;
   }
 
   async downloadAgent(agentId: string, version?: string): Promise<string> {
@@ -107,11 +161,50 @@ export class RegistryService {
       throw new Error(`Agent ${agentId} not found`);
     }
 
-    const targetVersion = version || agent.latest;
-    const url = `${this.registryUrl}/agents/${agent.author}/${agentId}/agent.md`;
+    const targetVersion = version || agent.version;
+    const filename = `${agentId}_v${targetVersion}.md`;
+    const url = `${this.registryUrl}/agents/${agent.author}/${agentId}/${filename}`;
     
     const response = await axios.get(url);
     return response.data;
+  }
+
+  async getCategoryAgents(category: string): Promise<AgentInfo[]> {
+    return this.fetchWithCache(`category-${category}`, async () => {
+      const url = `${this.registryUrl}/index/categories/${category}.json`;
+      const response = await axios.get(url);
+      return response.data.agents || [];
+    });
+  }
+
+  async getFeaturedAgents(): Promise<AgentInfo[]> {
+    return this.fetchWithCache('featured', async () => {
+      const url = `${this.registryUrl}/index/featured.json`;
+      const response = await axios.get(url);
+      return response.data.agents || [];
+    });
+  }
+
+  async getAllAgents(): Promise<AgentInfo[]> {
+    const registry = await this.getRegistry();
+    const categories = Object.keys(registry.categories);
+    
+    // Fetch all category agents in parallel
+    const categoryPromises = categories.map(category => 
+      this.getCategoryAgents(category).catch(() => [])
+    );
+    
+    const categoryResults = await Promise.all(categoryPromises);
+    
+    // Flatten all agents from all categories
+    const allAgents = categoryResults.flat();
+    
+    // Remove duplicates by agent ID
+    const uniqueAgents = allAgents.filter((agent, index, self) => 
+      index === self.findIndex(a => a.id === agent.id)
+    );
+    
+    return uniqueAgents;
   }
 
   async getCategories(): Promise<Record<string, any>> {

@@ -21,7 +21,7 @@ export class InstallerService {
       throw new Error(`Agent ${agentId} not found`);
     }
 
-    const version = options.version || agent.latest;
+    const version = options.version || agent.version;
     const target = options.target || config.install.target;
     
     // Check if already installed
@@ -105,8 +105,8 @@ export class InstallerService {
     for (const agent of installed) {
       try {
         const latest = await this.registryService.getAgentDetails(agent.id);
-        if (latest && latest.latest !== agent.version) {
-          updates.push({ agent, latestVersion: latest.latest });
+        if (latest && latest.version !== agent.version) {
+          updates.push({ agent, latestVersion: latest.version });
         }
       } catch (error) {
         console.warn(`Failed to check updates for ${agent.id}:`, error);
