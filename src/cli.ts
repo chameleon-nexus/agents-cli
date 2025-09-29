@@ -13,7 +13,7 @@ const program = new Command();
 program
   .name('agt')
   .description('AGT - AI Agent Management Tool for Chameleon Registry')
-  .version('1.3.0')
+  .version('1.3.1')
   .option('-v, --verbose', 'verbose output')
   .option('--registry <url>', 'registry URL')
   .option('--config <path>', 'config file path');
