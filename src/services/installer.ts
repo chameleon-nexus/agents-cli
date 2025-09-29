@@ -45,7 +45,7 @@ export class InstallerService {
     const content = await this.registryService.downloadAgent(agentId, version);
     
     // Determine install path
-    const installPath = await this.getInstallPath(target, agentId);
+    const installPath = await this.getInstallPath(target, agentId, version);
     await fs.ensureDir(path.dirname(installPath));
     
     // Write agent file
@@ -123,25 +123,30 @@ export class InstallerService {
     return updates;
   }
 
-  private async getInstallPath(target: string, agentId: string): Promise<string> {
+  private async getInstallPath(target: string, agentId: string, version: string): Promise<string> {
     const homeDir = os.homedir();
     
-    // Extract agent name from "author/agent-name" format for filename
-    const agentName = agentId.includes('/') ? agentId.split('/')[1] : agentId;
+    // Extract author and agent name from "author/agent-name" format
+    const [author, agentName] = agentId.includes('/') 
+      ? agentId.split('/') 
+      : ['unknown', agentId];
+    
+    // Create filename with format: author_agent-name_version.md
+    const filename = `${author}_${agentName}_v${version}.md`;
     
     switch (target) {
       case 'claude-code':
         // Install to Claude Code's user agents directory: ~/.claude/agents/
-        return path.join(homeDir, '.claude', 'agents', `${agentName}.md`);
+        return path.join(homeDir, '.claude', 'agents', filename);
       case 'codex':
         // Install to Codex agents directory: ~/.codex/agents/
-        return path.join(homeDir, '.codex', 'agents', `${agentName}.md`);
+        return path.join(homeDir, '.codex', 'agents', filename);
       case 'copilot':
         // Install to Copilot agents directory: ~/.copilot/agents/
-        return path.join(homeDir, '.copilot', 'agents', `${agentName}.md`);
+        return path.join(homeDir, '.copilot', 'agents', filename);
       default:
         // Fallback for unknown targets
-        return path.join(homeDir, `.${target}`, 'agents', `${agentName}.md`);
+        return path.join(homeDir, `.${target}`, 'agents', filename);
     }
   }
 
