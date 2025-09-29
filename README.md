@@ -21,8 +21,8 @@ agt --help
 # Search for Python-related agents
 agt search python
 
-# Install a popular agent
-agt install python-pro
+# Install a popular agent (use author/agent-name format)
+agt install wshobson/code-reviewer
 
 # List all your installed agents
 agt list --installed
@@ -65,28 +65,40 @@ agt search --sort rating
 
 ### Install Agents
 ```bash
-# Install specific agent
-agt install python-pro
+# Install specific agent (use author/agent-name format)
+agt install wshobson/code-reviewer
 
 # Install specific version
-agt install python-pro --version 1.0.0
+agt install wshobson/code-reviewer@1.0.0
 
 # Install to specific CLI target
-agt install python-pro --target claude-code
-agt install python-pro --target codex
-agt install python-pro --target copilot
+agt install wshobson/code-reviewer --target claude-code
+agt install wshobson/code-reviewer --target codex
+agt install wshobson/code-reviewer --target copilot
 
 # Install multiple agents
-agt install python-pro code-reviewer debugger
+agt install wshobson/code-reviewer another-author/python-pro
 
 # Force reinstall (overwrite existing)
-agt install python-pro --force
+agt install wshobson/code-reviewer --force
 
 # Dry run (preview only, no actual installation)
-agt install python-pro --dry-run
+agt install wshobson/code-reviewer --dry-run
 
 # Skip confirmation prompts
-agt install python-pro --yes
+agt install wshobson/code-reviewer --yes
+```
+
+### Uninstall Agents
+```bash
+# Uninstall specific agent
+agt uninstall wshobson/code-reviewer
+
+# Uninstall from specific CLI target
+agt uninstall wshobson/code-reviewer --target claude-code
+
+# Uninstall multiple agents
+agt uninstall wshobson/code-reviewer another-author/python-pro
 ```
 
 ### List Agents
@@ -113,37 +125,13 @@ agt list --json
 agt update
 
 # Update specific agents
-agt update python-pro code-reviewer
+agt update wshobson/code-reviewer another-author/python-pro
 
 # Check for updates only
 agt update --check
 
 # Dry run
 agt update --dry-run
-```
-
-### Publish Agents
-```bash
-# Publish a single agent
-agt publish my-agent.md
-
-# Validate agent format only
-agt publish my-agent.md --validate
-
-# Publish all agents in a directory
-agt publish --batch ./my-agents
-
-# Update existing agent
-agt publish my-agent.md --update
-
-# Dry run (preview what would be published)
-agt publish my-agent.md --dry-run
-
-# Skip confirmation prompts
-agt publish my-agent.md --yes
-
-# Override author and category
-agt publish my-agent.md --author myname --category development
 ```
 
 ### Configuration
@@ -169,7 +157,8 @@ registry:
 
 install:
   target: claude-code
-  directory: ~/.agt/agents
+  userDirectory: ~/.claude/agents
+  projectDirectory: .claude/agents
 
 logging:
   level: info
@@ -226,9 +215,10 @@ git push origin v1.0.0
 
 The CLI communicates with the Agents Registry via GitHub Raw API:
 
-- **Registry Index**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/registry.json`
-- **Agent Metadata**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/metadata.json`
-- **Agent File**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/agent.md`
+- **Registry Index**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/main.json`
+- **Category Indexes**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/categories/{category}.json`
+- **Featured Agents**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/featured.json`
+- **Agent Files**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/{id}_v{version}.md`
 
 ## 🤝 Contributing
 

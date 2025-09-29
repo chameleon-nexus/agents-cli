@@ -150,20 +150,62 @@ export class RegistryService {
   }
 
   async getAgentDetails(agentId: string): Promise<AgentInfo | null> {
-    // Search through all agents to find the one with matching ID
+    // Support formats: "agent-name", "author/agent-name", "author/agent-name@version"
     const allAgents = await this.getAllAgents();
-    return allAgents.find(agent => agent.id === agentId) || null;
+    
+    // Parse agent ID and version
+    const { parsedId, version } = this.parseAgentId(agentId);
+    
+    let targetAgent: AgentInfo | undefined;
+    
+    if (parsedId.includes('/')) {
+      // Format: "author/agent-name[@version]"
+      const [author, agentName] = parsedId.split('/');
+      targetAgent = allAgents.find(agent => 
+        agent.author === author && agent.id === agentName
+      );
+    } else {
+      // Format: "agent-name[@version]" - find first match by agent name
+      targetAgent = allAgents.find(agent => agent.id === parsedId);
+    }
+    
+    return targetAgent || null;
+  }
+
+  /**
+   * Parse agent ID to extract agent identifier and version
+   * Examples:
+   * - "code-reviewer" -> { parsedId: "code-reviewer", version: undefined }
+   * - "wshobson/code-reviewer" -> { parsedId: "wshobson/code-reviewer", version: undefined }
+   * - "wshobson/code-reviewer@1.0.0" -> { parsedId: "wshobson/code-reviewer", version: "1.0.0" }
+   */
+  private parseAgentId(agentId: string): { parsedId: string; version?: string } {
+    const atIndex = agentId.lastIndexOf('@');
+    
+    if (atIndex > 0 && atIndex < agentId.length - 1) {
+      // Has version specified
+      const parsedId = agentId.substring(0, atIndex);
+      const version = agentId.substring(atIndex + 1);
+      return { parsedId, version };
+    }
+    
+    // No version specified
+    return { parsedId: agentId };
   }
 
   async downloadAgent(agentId: string, version?: string): Promise<string> {
-    const agent = await this.getAgentDetails(agentId);
+    // Parse agent ID to extract version if specified in ID format "author/agent@version"
+    const { parsedId, version: parsedVersion } = this.parseAgentId(agentId);
+    
+    const agent = await this.getAgentDetails(parsedId);
     if (!agent) {
-      throw new Error(`Agent ${agentId} not found`);
+      throw new Error(`Agent ${parsedId} not found`);
     }
 
-    const targetVersion = version || agent.version;
-    const filename = `${agentId}_v${targetVersion}.md`;
-    const url = `${this.registryUrl}/agents/${agent.author}/${agentId}/${filename}`;
+    // Priority: explicit version parameter > parsed version from ID > agent default version
+    const targetVersion = version || parsedVersion || agent.version;
+    const filename = `${agent.id}_v${targetVersion}.md`;
+    const url = `${this.registryUrl}/agents/${agent.author}/${agent.id}/${filename}`;
     
     const response = await axios.get(url);
     return response.data;

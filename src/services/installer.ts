@@ -15,13 +15,17 @@ export class InstallerService {
 
   async installAgent(agentId: string, options: InstallOptions = {}): Promise<void> {
     const config = await this.configService.getConfig();
-    const agent = await this.registryService.getAgentDetails(agentId);
+    
+    // Parse agent ID to extract version if specified
+    const { parsedId, version: parsedVersion } = this.parseAgentId(agentId);
+    const agent = await this.registryService.getAgentDetails(parsedId);
     
     if (!agent) {
-      throw new Error(`Agent ${agentId} not found`);
+      throw new Error(`Agent ${parsedId} not found`);
     }
 
-    const version = options.version || agent.version;
+    // Priority: explicit version option > parsed version from ID > agent default version
+    const version = options.version || parsedVersion || agent.version;
     const target = options.target || config.install.target;
     
     // Check if already installed
@@ -63,11 +67,14 @@ export class InstallerService {
     const config = await this.configService.getConfig();
     const targetCli = target || config.install.target;
     
+    // Parse agent ID to handle author/agent format
+    const { parsedId } = this.parseAgentId(agentId);
+    
     const installed = await this.getInstalledAgents();
-    const agent = installed.find(a => a.id === agentId && a.target === targetCli);
+    const agent = installed.find(a => a.id === parsedId && a.target === targetCli);
     
     if (!agent) {
-      throw new Error(`Agent ${agentId} is not installed for ${targetCli}`);
+      throw new Error(`Agent ${parsedId} is not installed for ${targetCli}`);
     }
 
     // Remove file
@@ -76,15 +83,15 @@ export class InstallerService {
     }
 
     // Update registry
-    const remaining = installed.filter(a => !(a.id === agentId && a.target === targetCli));
+    const remaining = installed.filter(a => !(a.id === parsedId && a.target === targetCli));
     await this.saveInstalledAgents(remaining);
 
-    console.log(`Successfully uninstalled ${agentId} from ${targetCli}`);
+    console.log(`Successfully uninstalled ${parsedId} from ${targetCli}`);
   }
 
   async getInstalledAgents(): Promise<InstalledAgent[]> {
-    const config = await this.configService.getConfig();
-    const registryPath = path.join(config.install.directory, 'installed.json');
+    // Use centralized registry file under .agents for cross-CLI compatibility
+    const registryPath = path.join(os.homedir(), '.agents', 'installed.json');
     
     try {
       if (await fs.pathExists(registryPath)) {
@@ -117,17 +124,24 @@ export class InstallerService {
   }
 
   private async getInstallPath(target: string, agentId: string): Promise<string> {
-    const config = await this.configService.getConfig();
+    const homeDir = os.homedir();
+    
+    // Extract agent name from "author/agent-name" format for filename
+    const agentName = agentId.includes('/') ? agentId.split('/')[1] : agentId;
     
     switch (target) {
       case 'claude-code':
-        return path.join(config.install.directory, 'claude-code', `${agentId}.md`);
+        // Install to Claude Code's user agents directory: ~/.claude/agents/
+        return path.join(homeDir, '.claude', 'agents', `${agentName}.md`);
       case 'codex':
-        return path.join(config.install.directory, 'codex', `${agentId}.md`);
+        // Install to Codex agents directory: ~/.codex/agents/
+        return path.join(homeDir, '.codex', 'agents', `${agentName}.md`);
       case 'copilot':
-        return path.join(config.install.directory, 'copilot', `${agentId}.md`);
+        // Install to Copilot agents directory: ~/.copilot/agents/
+        return path.join(homeDir, '.copilot', 'agents', `${agentName}.md`);
       default:
-        return path.join(config.install.directory, target, `${agentId}.md`);
+        // Fallback for unknown targets
+        return path.join(homeDir, `.${target}`, 'agents', `${agentName}.md`);
     }
   }
 
@@ -142,11 +156,32 @@ export class InstallerService {
   }
 
   private async saveInstalledAgents(agents: InstalledAgent[]): Promise<void> {
-    const config = await this.configService.getConfig();
-    const registryPath = path.join(config.install.directory, 'installed.json');
+    // Use centralized registry file under .agents for cross-CLI compatibility
+    const registryPath = path.join(os.homedir(), '.agents', 'installed.json');
     
     await fs.ensureDir(path.dirname(registryPath));
     await fs.writeFile(registryPath, JSON.stringify(agents, null, 2));
+  }
+
+  /**
+   * Parse agent ID to extract agent identifier and version
+   * Examples:
+   * - "code-reviewer" -> { parsedId: "code-reviewer", version: undefined }
+   * - "wshobson/code-reviewer" -> { parsedId: "wshobson/code-reviewer", version: undefined }
+   * - "wshobson/code-reviewer@1.0.0" -> { parsedId: "wshobson/code-reviewer", version: "1.0.0" }
+   */
+  private parseAgentId(agentId: string): { parsedId: string; version?: string } {
+    const atIndex = agentId.lastIndexOf('@');
+    
+    if (atIndex > 0 && atIndex < agentId.length - 1) {
+      // Has version specified
+      const parsedId = agentId.substring(0, atIndex);
+      const version = agentId.substring(atIndex + 1);
+      return { parsedId, version };
+    }
+    
+    // No version specified
+    return { parsedId: agentId };
   }
 }
 

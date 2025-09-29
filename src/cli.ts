@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { searchCommand } from './commands/search';
 import { installCommand } from './commands/install';
+import { uninstallCommand } from './commands/uninstall';
 import { listCommand } from './commands/list';
 import { updateCommand } from './commands/update';
 import { configCommand } from './commands/config';
@@ -13,7 +14,7 @@ const program = new Command();
 program
   .name('agt')
   .description('AGT - AI Agent Management Tool for Chameleon Registry')
-  .version('1.3.1')
+  .version('1.5.0')
   .option('-v, --verbose', 'verbose output')
   .option('--registry <url>', 'registry URL')
   .option('--config <path>', 'config file path');
@@ -21,6 +22,7 @@ program
 // Add commands
 program.addCommand(searchCommand);
 program.addCommand(installCommand);
+program.addCommand(uninstallCommand);
 program.addCommand(listCommand);
 program.addCommand(updateCommand);
 program.addCommand(configCommand);
