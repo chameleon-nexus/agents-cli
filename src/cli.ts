@@ -8,13 +8,18 @@ import { uninstallCommand } from './commands/uninstall';
 import { listCommand } from './commands/list';
 import { updateCommand } from './commands/update';
 import { configCommand } from './commands/config';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Read version from package.json
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../package.json'), 'utf8'));
 
 const program = new Command();
 
 program
   .name('agt')
   .description('AGT - AI Agent Management Tool for Chameleon Registry')
-  .version('1.5.0')
+  .version(packageJson.version)
   .option('-v, --verbose', 'verbose output')
   .option('--registry <url>', 'registry URL')
   .option('--config <path>', 'config file path');
