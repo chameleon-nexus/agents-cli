@@ -149,3 +149,4 @@ export class InstallerService {
     await fs.writeFile(registryPath, JSON.stringify(agents, null, 2));
   }
 }
+

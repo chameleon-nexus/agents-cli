@@ -12,9 +12,9 @@ import { configCommand } from './commands/config';
 const program = new Command();
 
 program
-  .name('agents')
-  .description('Chameleon Agent CLI - Manage AI agents for your development workflow')
-  .version('1.0.0')
+  .name('agt')
+  .description('AGT - AI Agent Management Tool for Chameleon Registry')
+  .version('1.1.0')
   .option('-v, --verbose', 'verbose output')
   .option('--registry <url>', 'registry URL')
   .option('--config <path>', 'config file path');
@@ -43,3 +43,4 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Parse arguments
 program.parse();
+

@@ -1,4 +1,4 @@
-# Agents CLI
+# AGT - AI Agent Management Tool
 
 A command-line interface for managing AI agents from the Chameleon Agents Registry.
 
@@ -9,24 +9,24 @@ A command-line interface for managing AI agents from the Chameleon Agents Regist
 npm install -g @chameleon-nexus/agents-cli
 
 # Verify installation
-agents --version
-agents --help
+agt --version
+agt --help
 ```
 
 ## ⚡ Quick Start
 
 ```bash
 # Search for Python-related agents
-agents search python
+agt search python
 
 # Install a popular agent
-agents install python-pro
+agt install python-pro
 
 # List all your installed agents
-agents list --installed
+agt list --installed
 
 # Check for updates
-agents update --check
+agt update --check
 ```
 
 ## 📖 Usage
@@ -34,99 +34,123 @@ agents update --check
 ### Search Agents
 ```bash
 # Search all agents
-agents search
+agt search
 
 # Search by keyword
-agents search "code review"
+agt search "code review"
 
 # Search by category
-agents search --category development
+agt search --category development
 
 # Search by tag
-agents search --tag typescript
+agt search --tag typescript
 
 # Filter by CLI compatibility
-agents search --compatibility claude-code
+agt search --compatibility claude-code
 
 # Sort results
-agents search --sort downloads
-agents search --sort rating
+agt search --sort downloads
+agt search --sort rating
 ```
 
 ### Install Agents
 ```bash
 # Install specific agent
-agents install python-pro
+agt install python-pro
 
 # Install specific version
-agents install python-pro --version 1.0.0
+agt install python-pro --version 1.0.0
 
 # Install to specific CLI target
-agents install python-pro --target claude-code
-agents install python-pro --target codex
-agents install python-pro --target copilot
+agt install python-pro --target claude-code
+agt install python-pro --target codex
+agt install python-pro --target copilot
 
 # Install multiple agents
-agents install python-pro code-reviewer debugger
+agt install python-pro code-reviewer debugger
 
 # Force reinstall (overwrite existing)
-agents install python-pro --force
+agt install python-pro --force
 
 # Dry run (preview only, no actual installation)
-agents install python-pro --dry-run
+agt install python-pro --dry-run
 
 # Skip confirmation prompts
-agents install python-pro --yes
+agt install python-pro --yes
 ```
 
 ### List Agents
 ```bash
 # List all available agents
-agents list
+agt list
 
 # List installed agents
-agents list --installed
+agt list --installed
 
 # List by category
-agents list --category development
+agt list --category development
 
 # Check for updates
-agents list --updates
+agt list --updates
 
 # JSON output
-agents list --json
+agt list --json
 ```
 
 ### Update Agents
 ```bash
 # Update all agents
-agents update
+agt update
 
 # Update specific agents
-agents update python-pro code-reviewer
+agt update python-pro code-reviewer
 
 # Check for updates only
-agents update --check
+agt update --check
 
 # Dry run
-agents update --dry-run
+agt update --dry-run
+```
+
+### Publish Agents
+```bash
+# Publish a single agent
+agt publish my-agent.md
+
+# Validate agent format only
+agt publish my-agent.md --validate
+
+# Publish all agents in a directory
+agt publish --batch ./my-agents
+
+# Update existing agent
+agt publish my-agent.md --update
+
+# Dry run (preview what would be published)
+agt publish my-agent.md --dry-run
+
+# Skip confirmation prompts
+agt publish my-agent.md --yes
+
+# Override author and category
+agt publish my-agent.md --author myname --category development
 ```
 
 ### Configuration
 ```bash
 # Show current config
-agents config --show
+agt config --show
 
 # Edit config interactively
-agents config --edit
+agt config --edit
 
 # Reset to defaults
-agents config --reset
+agt config --reset
 ```
 
 ## ⚙️ Configuration
 
-The CLI creates a configuration file at `~/.agents-cli/config.yaml`:
+The CLI creates a configuration file at `~/.agt/config.yaml`:
 
 ```yaml
 registry:
@@ -135,7 +159,7 @@ registry:
 
 install:
   target: claude-code
-  directory: ~/.agents
+  directory: ~/.agt/agents
 
 logging:
   level: info
@@ -162,6 +186,9 @@ npm run build
 
 # Run in development mode
 npm run dev search
+
+# Test the CLI locally
+node dist/cli.js --help
 
 # Run tests
 npm test

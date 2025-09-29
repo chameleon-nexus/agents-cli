@@ -145,3 +145,4 @@ export class RegistryService {
     this.cache.clear();
   }
 }
+

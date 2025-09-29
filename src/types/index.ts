@@ -102,3 +102,29 @@ export interface InstalledAgent {
   target: string;
   path: string;
 }
+
+export interface Agent {
+  id: string;
+  name: {
+    en: string;
+    zh: string;
+  } | string;
+  description: {
+    en: string;
+    zh: string;
+  } | string;
+  author: string;
+  category: string;
+  version: string;
+  compatibility: {
+    'claude-code'?: boolean;
+    'codex'?: boolean;
+    'copilot'?: boolean;
+  };
+  tags?: string[];
+  rating?: number;
+  downloads?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+

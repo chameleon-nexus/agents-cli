@@ -1,10 +1,10 @@
 {
   "name": "@chameleon-nexus/agents-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Command-line interface for managing AI agents from the Chameleon Agents Registry",
   "main": "dist/index.js",
   "bin": {
-    "agents": "dist/cli.js"
+    "agt": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -69,3 +69,5 @@
     "LICENSE"
   ]
 }
+
+
