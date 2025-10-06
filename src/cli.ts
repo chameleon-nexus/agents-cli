@@ -8,6 +8,8 @@ import { uninstallCommand } from './commands/uninstall';
 import { listCommand } from './commands/list';
 import { updateCommand } from './commands/update';
 import { configCommand } from './commands/config';
+import { loginCommand } from './commands/login';
+import { publishCommand } from './commands/publish';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -25,6 +27,8 @@ program
   .option('--config <path>', 'config file path');
 
 // Add commands
+program.addCommand(loginCommand);
+program.addCommand(publishCommand);
 program.addCommand(searchCommand);
 program.addCommand(installCommand);
 program.addCommand(uninstallCommand);

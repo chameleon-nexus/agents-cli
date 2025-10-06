@@ -6,7 +6,7 @@ import { RegistryService } from './registry';
 import { ConfigService } from './config';
 
 export class InstallerService {
-  private configService = new ConfigService();
+  private configService = ConfigService.getInstance();
   private registryService: RegistryService;
 
   constructor(registryUrl?: string) {

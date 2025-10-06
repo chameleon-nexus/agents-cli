@@ -5,8 +5,11 @@ import * as yaml from 'yaml';
 import { Config } from '../types';
 
 export class ConfigService {
+  private static instance: ConfigService;
   private static readonly CONFIG_DIR = path.join(os.homedir(), '.agents-cli');
   private static readonly CONFIG_FILE = path.join(ConfigService.CONFIG_DIR, 'config.yaml');
+  
+  private config: Record<string, any> = {};
   
   private static readonly DEFAULT_CONFIG: Config = {
     registry: {
@@ -20,7 +23,54 @@ export class ConfigService {
     logging: {
       level: 'info',
     },
+    apiUrl: 'https://agthub-qexf.vercel.app',
   };
+
+  private constructor() {
+    this.load();
+  }
+
+  static getInstance(): ConfigService {
+    if (!ConfigService.instance) {
+      ConfigService.instance = new ConfigService();
+    }
+    return ConfigService.instance;
+  }
+
+  private load(): void {
+    try {
+      fs.ensureDirSync(ConfigService.CONFIG_DIR);
+      
+      if (fs.pathExistsSync(ConfigService.CONFIG_FILE)) {
+        const content = fs.readFileSync(ConfigService.CONFIG_FILE, 'utf-8');
+        this.config = { ...ConfigService.DEFAULT_CONFIG, ...yaml.parse(content) };
+      } else {
+        this.config = { ...ConfigService.DEFAULT_CONFIG };
+        this.save();
+      }
+    } catch (error) {
+      console.warn('Failed to load config, using defaults:', error);
+      this.config = { ...ConfigService.DEFAULT_CONFIG };
+    }
+  }
+
+  get(key: string): any {
+    return this.config[key];
+  }
+
+  set(key: string, value: any): void {
+    this.config[key] = value;
+  }
+
+  save(): void {
+    try {
+      fs.ensureDirSync(ConfigService.CONFIG_DIR);
+      const content = yaml.stringify(this.config, { indent: 2 });
+      fs.writeFileSync(ConfigService.CONFIG_FILE, content);
+    } catch (error) {
+      console.error('Failed to save config:', error);
+    }
+  }
 
   async getConfig(): Promise<Config> {
     try {

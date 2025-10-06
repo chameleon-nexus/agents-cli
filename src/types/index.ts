@@ -113,6 +113,7 @@ export interface Config {
   logging: {
     level: 'debug' | 'info' | 'warn' | 'error';
   };
+  apiUrl?: string; // AGTHub API URL for authentication and publishing
 }
 
 export interface InstalledAgent {
