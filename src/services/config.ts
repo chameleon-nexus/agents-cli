@@ -13,7 +13,7 @@ export class ConfigService {
   
   private static readonly DEFAULT_CONFIG: Config = {
     registry: {
-      url: 'https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master',
+      url: 'https://agthub.vercel.app',
       cacheTtl: 300, // 5 minutes
     },
     install: {
@@ -23,7 +23,7 @@ export class ConfigService {
     logging: {
       level: 'info',
     },
-    apiUrl: 'https://agthub-qexf.vercel.app',
+    apiUrl: 'https://agthub.vercel.app',
   };
 
   private constructor() {
