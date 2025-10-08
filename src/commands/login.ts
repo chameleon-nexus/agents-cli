@@ -9,7 +9,7 @@ export const loginCommand = new Command('login')
   .description('Login to AGTHub to publish agents')
   .action(async () => {
     const config = ConfigService.getInstance();
-    const apiUrl = config.get('apiUrl') || 'https://agthub-qexf.vercel.app';
+    const apiUrl = config.get('apiUrl') || 'https://www.agthub.org';
 
     try {
       console.log(chalk.blue('🔐 AGTHub CLI Login\n'));

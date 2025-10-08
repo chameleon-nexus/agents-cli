@@ -3,113 +3,102 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import { Registry, AgentInfo, SearchFilters } from '../types';
+import { ConfigService } from './config';
 
 export class RegistryService {
-  private static readonly DEFAULT_REGISTRY_URL = 'https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master';
+  private static readonly DEFAULT_API_URL = 'https://www.agthub.org';
   private cache: Map<string, { data: any; timestamp: number }> = new Map();
   private readonly cacheTtl = 5 * 60 * 1000; // 5 minutes
+  private apiUrl: string;
 
-  constructor(private registryUrl?: string) {
-    this.registryUrl = registryUrl || RegistryService.DEFAULT_REGISTRY_URL;
+  constructor(apiUrl?: string) {
+    const config = ConfigService.getInstance();
+    this.apiUrl = apiUrl || config.get('apiUrl') || RegistryService.DEFAULT_API_URL;
   }
 
   async getRegistry(): Promise<Registry> {
-    return this.fetchWithCache('registry', async () => {
-      const url = `${this.registryUrl}/index/main.json`;
-      const response = await axios.get(url);
-      return response.data;
-    });
+    // Deprecated: Use AGTHub API instead
+    return {
+      version: '2.0.0',
+      lastUpdated: new Date().toISOString(),
+      totalAgents: 0,
+      languages: ['en', 'zh', 'ja', 'vi'],
+      categories: {},
+      featured: {
+        count: 0,
+        url: '',
+        description: {
+          en: 'Featured agents',
+          zh: '精选代理',
+          ja: '注目のエージェント'
+        }
+      },
+      stats: {
+        totalDownloads: 0,
+        activeUsers: 0,
+        topAgents: [],
+        recentUpdates: []
+      }
+    };
   }
 
   async searchAgents(query: string = '', filters: SearchFilters = {}): Promise<AgentInfo[]> {
-    let agents: AgentInfo[] = [];
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      
+      if (query) params.append('q', query);
+      if (filters.category) params.append('category', filters.category);
+      if (filters.tag) params.append('tag', filters.tag);
+      if (filters.language) params.append('lang', filters.language);
+      if (filters.sortBy) params.append('sort', filters.sortBy);
+      if (filters.limit) params.append('limit', filters.limit.toString());
 
-    if (filters.category) {
-      // Fetch specific category
-      agents = await this.getCategoryAgents(filters.category);
-    } else {
-      // Fetch featured agents or all categories
-      agents = await this.getAllAgents();
+      const url = `${this.apiUrl}/api/agents/search?${params.toString()}`;
+      const response = await axios.get(url);
+      
+      const agents = response.data.agents || [];
+      
+      // Transform AGTHub API response to CLI format
+      return agents.map((agent: any) => this.transformAgent(agent));
+    } catch (error) {
+      console.error('Error fetching from AGTHub:', error);
+      return [];
     }
+  }
 
-    // Filter by query
-    if (query) {
-      const lowerQuery = query.toLowerCase();
-      agents = agents.filter(agent => 
-        agent.name.en.toLowerCase().includes(lowerQuery) ||
-        agent.name.zh.toLowerCase().includes(lowerQuery) ||
-        agent.name.ja.toLowerCase().includes(lowerQuery) ||
-        agent.description.en.toLowerCase().includes(lowerQuery) ||
-        agent.description.zh.toLowerCase().includes(lowerQuery) ||
-        agent.description.ja.toLowerCase().includes(lowerQuery) ||
-        agent.tags.some(tag => tag.toLowerCase().includes(lowerQuery))
-      );
-    }
-
-    // Apply filters
-    if (filters.category) {
-      agents = agents.filter(agent => agent.category === filters.category);
-    }
-
-    if (filters.tag) {
-      agents = agents.filter(agent => 
-        agent.tags.some(tag => tag.toLowerCase().includes(filters.tag!.toLowerCase()))
-      );
-    }
-
-    if (filters.author) {
-      agents = agents.filter(agent => 
-        agent.author.toLowerCase().includes(filters.author!.toLowerCase())
-      );
-    }
-
-    if (filters.compatibility) {
-      agents = agents.filter(agent => {
-        const compat = agent.compatibility;
-        switch (filters.compatibility) {
-          case 'claudeCode':
-            return compat.claudeCode || compat['claude-code' as keyof typeof compat];
-          case 'codex':
-            return compat.codex;
-          case 'copilot':
-            return compat.copilot;
-          default:
-            return true;
+  private transformAgent(apiAgent: any): AgentInfo {
+    return {
+      id: apiAgent.agentId,
+      name: {
+        en: apiAgent.name || apiAgent.agentId,
+        zh: apiAgent.name_translations?.zh || '',
+        ja: apiAgent.name_translations?.ja || ''
+      },
+      description: {
+        en: apiAgent.description || '',
+        zh: apiAgent.description_translations?.zh || '',
+        ja: apiAgent.description_translations?.ja || ''
+      },
+      author: apiAgent.author?.name || 'Unknown',
+      version: apiAgent.version,
+      category: apiAgent.category,
+      tags: apiAgent.tags || [],
+      versions: {},
+      homepage: apiAgent.homepage || '',
+      license: apiAgent.license || 'MIT',
+      downloads: apiAgent.downloads || 0,
+      rating: apiAgent.averageRating || 0,
+      ratingCount: apiAgent.ratingCount || 0,
+      compatibility: {
+        claudeCode: {
+          minVersion: '1.0.0',
+          tested: ['1.0.0']
         }
-      });
-    }
-
-    // Language filter - only show agents with content in specified language
-    if (filters.language) {
-      agents = agents.filter(agent => {
-        return this.hasLanguageContent(agent, filters.language!);
-      });
-    }
-
-    // Sort results
-    if (filters.sortBy) {
-      agents.sort((a, b) => {
-        switch (filters.sortBy) {
-          case 'downloads':
-            return b.downloads - a.downloads;
-          case 'rating':
-            return b.rating - a.rating;
-          case 'name':
-            return a.name.en.localeCompare(b.name.en);
-          case 'updated':
-            return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-          default:
-            return 0;
-        }
-      });
-    }
-
-    // Apply limit
-    if (filters.limit && filters.limit > 0) {
-      agents = agents.slice(0, filters.limit);
-    }
-
-    return agents;
+      },
+      createdAt: apiAgent.createdAt,
+      updatedAt: apiAgent.updatedAt
+    };
   }
 
   /**
@@ -150,26 +139,20 @@ export class RegistryService {
   }
 
   async getAgentDetails(agentId: string): Promise<AgentInfo | null> {
-    // Support formats: "agent-name", "author/agent-name", "author/agent-name@version"
-    const allAgents = await this.getAllAgents();
-    
-    // Parse agent ID and version
-    const { parsedId, version } = this.parseAgentId(agentId);
-    
-    let targetAgent: AgentInfo | undefined;
-    
-    if (parsedId.includes('/')) {
-      // Format: "author/agent-name[@version]"
-      const [author, agentName] = parsedId.split('/');
-      targetAgent = allAgents.find(agent => 
-        agent.author === author && agent.id === agentName
-      );
-    } else {
-      // Format: "agent-name[@version]" - find first match by agent name
-      targetAgent = allAgents.find(agent => agent.id === parsedId);
+    try {
+      // Parse agent ID to remove version if present
+      const { parsedId } = this.parseAgentId(agentId);
+      
+      // Search for the specific agent
+      const agents = await this.searchAgents(parsedId);
+      
+      // Find exact match
+      const agent = agents.find(a => a.id === parsedId);
+      return agent || null;
+    } catch (error) {
+      console.error('Error fetching agent details:', error);
+      return null;
     }
-    
-    return targetAgent || null;
   }
 
   /**
@@ -194,64 +177,58 @@ export class RegistryService {
   }
 
   async downloadAgent(agentId: string, version?: string): Promise<string> {
-    // Parse agent ID to extract version if specified in ID format "author/agent@version"
-    const { parsedId, version: parsedVersion } = this.parseAgentId(agentId);
-    
-    const agent = await this.getAgentDetails(parsedId);
-    if (!agent) {
-      throw new Error(`Agent ${parsedId} not found`);
-    }
+    try {
+      // Parse agent ID to extract version if specified
+      const { parsedId, version: parsedVersion } = this.parseAgentId(agentId);
+      
+      const agent = await this.getAgentDetails(parsedId);
+      if (!agent) {
+        throw new Error(`Agent ${parsedId} not found`);
+      }
 
-    // Priority: explicit version parameter > parsed version from ID > agent default version
-    const targetVersion = version || parsedVersion || agent.version;
-    const filename = `${agent.id}_v${targetVersion}.md`;
-    const url = `${this.registryUrl}/agents/${agent.author}/${agent.id}/${filename}`;
-    
-    const response = await axios.get(url);
-    return response.data;
+      // Get the internal database ID
+      const searchResult = await axios.get(`${this.apiUrl}/api/agents/search?q=${parsedId}`);
+      const agentData = searchResult.data.agents?.find((a: any) => a.agentId === parsedId);
+      
+      if (!agentData) {
+        throw new Error(`Agent ${parsedId} not found in AGTHub`);
+      }
+
+      // Download using AGTHub API
+      const downloadUrl = `${this.apiUrl}/api/agents/${agentData.id}/download`;
+      const response = await axios.get(downloadUrl);
+      
+      return response.data;
+    } catch (error: any) {
+      throw new Error(`Failed to download agent: ${error.message}`);
+    }
   }
 
   async getCategoryAgents(category: string): Promise<AgentInfo[]> {
-    return this.fetchWithCache(`category-${category}`, async () => {
-      const url = `${this.registryUrl}/index/categories/${category}.json`;
-      const response = await axios.get(url);
-      return response.data.agents || [];
-    });
+    return this.searchAgents('', { category });
   }
 
   async getFeaturedAgents(): Promise<AgentInfo[]> {
-    return this.fetchWithCache('featured', async () => {
-      const url = `${this.registryUrl}/index/featured.json`;
-      const response = await axios.get(url);
-      return response.data.agents || [];
-    });
+    // Get top rated agents
+    return this.searchAgents('', { sortBy: 'rating', limit: 10 });
   }
 
   async getAllAgents(): Promise<AgentInfo[]> {
-    const registry = await this.getRegistry();
-    const categories = Object.keys(registry.categories);
-    
-    // Fetch all category agents in parallel
-    const categoryPromises = categories.map(category => 
-      this.getCategoryAgents(category).catch(() => [])
-    );
-    
-    const categoryResults = await Promise.all(categoryPromises);
-    
-    // Flatten all agents from all categories
-    const allAgents = categoryResults.flat();
-    
-    // Remove duplicates by agent ID
-    const uniqueAgents = allAgents.filter((agent, index, self) => 
-      index === self.findIndex(a => a.id === agent.id)
-    );
-    
-    return uniqueAgents;
+    return this.searchAgents('', { limit: 1000 });
   }
 
   async getCategories(): Promise<Record<string, any>> {
-    const registry = await this.getRegistry();
-    return registry.categories;
+    // Return static categories for now
+    return {
+      'development': 'Development',
+      'debugging': 'Debugging',
+      'data': 'Data Analysis',
+      'content': 'Content Creation',
+      'business': 'Business',
+      'operations': 'Operations',
+      'quality': 'Quality Assurance',
+      'specialized': 'Specialized'
+    };
   }
 
   private async fetchWithCache<T>(key: string, fetcher: () => Promise<T>): Promise<T> {

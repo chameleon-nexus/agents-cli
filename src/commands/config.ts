@@ -5,7 +5,7 @@ import { ConfigService } from '../services/config';
 
 const ENVIRONMENTS = {
   local: 'http://localhost:3000',
-  production: 'https://agthub-qexf.vercel.app',
+  production: 'https://www.agthub.org',
   staging: 'https://agthub-staging.vercel.app', // 如果有staging环境
 };
 
@@ -60,7 +60,7 @@ configCommand
 async function showConfig(configService: ConfigService) {
   const config = await configService.getConfig();
   const configPath = configService.getConfigPath();
-  const apiUrl = configService.get('apiUrl') || 'https://agthub-qexf.vercel.app';
+  const apiUrl = configService.get('apiUrl') || 'https://www.agthub.org';
   const currentEnv = getCurrentEnvironment(apiUrl);
   
   console.log(chalk.cyan('\n📋 Current Configuration:'));
@@ -171,7 +171,7 @@ async function resetConfig(configService: ConfigService) {
 
 async function editConfig(configService: ConfigService) {
   const currentConfig = await configService.getConfig();
-  const currentApiUrl = configService.get('apiUrl') || 'https://agthub-qexf.vercel.app';
+  const currentApiUrl = configService.get('apiUrl') || 'https://www.agthub.org';
   
   const answers = await inquirer.prompt([
     {

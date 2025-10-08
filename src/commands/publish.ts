@@ -16,7 +16,7 @@ export const publishCommand = new Command('publish')
   .action(async (file: string, options) => {
     const config = ConfigService.getInstance();
     const token = config.get('token');
-    const apiUrl = config.get('apiUrl') || 'https://agthub-qexf.vercel.app';
+    const apiUrl = config.get('apiUrl') || 'https://www.agthub.org';
 
     if (!token) {
       console.error(chalk.red('❌ Not logged in. Please run'), chalk.yellow('agt login'), chalk.red('first'));

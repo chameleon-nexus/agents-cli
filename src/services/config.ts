@@ -13,7 +13,7 @@ export class ConfigService {
   
   private static readonly DEFAULT_CONFIG: Config = {
     registry: {
-      url: 'https://agthub.vercel.app',
+      url: 'https://www.agthub.org',
       cacheTtl: 300, // 5 minutes
     },
     install: {
@@ -23,7 +23,7 @@ export class ConfigService {
     logging: {
       level: 'info',
     },
-    apiUrl: 'https://agthub.vercel.app',
+    apiUrl: 'https://www.agthub.org',
   };
 
   private constructor() {

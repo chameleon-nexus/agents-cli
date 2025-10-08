@@ -22,7 +22,7 @@ agt config show
 Config file: C:\Users\your-name\.agents-cli\config.yaml
 
 🌐 AGTHub API:
-  URL: https://agthub-qexf.vercel.app
+  URL: https://www.agthub.org
   Environment: production
 
 👤 Authentication:
@@ -49,7 +49,7 @@ agt config use-env local
 agt config use-env production
 ```
 
-这会将API URL设置为 `https://agthub-qexf.vercel.app`
+这会将API URL设置为 `https://www.agthub.org`
 
 ### 4. 设置自定义URL
 
@@ -76,7 +76,7 @@ agt config reset
 | 环境 | URL | 用途 |
 |------|-----|------|
 | `local` | `http://localhost:3000` | 本地开发测试 |
-| `production` | `https://agthub-qexf.vercel.app` | 生产环境 |
+| `production` | `https://www.agthub.org` | 生产环境 |
 | `staging` | `https://agthub-staging.vercel.app` | 测试环境（如果有） |
 
 ## 使用场景
@@ -141,7 +141,7 @@ install:
   directory: /Users/your-name/.agents
 logging:
   level: info
-apiUrl: https://agthub-qexf.vercel.app
+apiUrl: https://www.agthub.org
 email: your-email@example.com
 userName: Your Name
 token: agt_1234567890abcdef...

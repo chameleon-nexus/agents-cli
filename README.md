@@ -1,8 +1,8 @@
 # AGT - AI Agent Management Tool
 
-A command-line interface for managing AI agents from the Chameleon Agents Registry.
+A command-line interface for managing AI agents from AGTHub.
 
-> **Note**: This is a simplified version focused on browsing, searching, and installing agents. Publishing and authentication features will be added in future releases.
+> **Version 2.0**: Now powered by AGTHub API with real-time search, publishing, and authentication features!
 
 ## 🚀 Installation
 
@@ -148,21 +148,24 @@ agt config --reset
 
 ## ⚙️ Configuration
 
-The CLI creates a configuration file at `~/.agt/config.yaml`:
+The CLI creates a configuration file at `~/.agents-cli/config.yaml`:
 
 ```yaml
 registry:
-  url: https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master
+  url: https://www.agthub.org
   cacheTtl: 300
 
 install:
   target: claude-code
-  userDirectory: ~/.claude/agents
-  projectDirectory: .claude/agents
+  directory: ~/.agents
 
 logging:
   level: info
+
+apiUrl: https://www.agthub.org
 ```
+
+See [CONFIG.md](CONFIG.md) for detailed configuration options.
 
 ## 🎯 Supported CLI Tools
 
@@ -213,12 +216,14 @@ git push origin v1.0.0
 
 ## 🌐 API
 
-The CLI communicates with the Agents Registry via GitHub Raw API:
+The CLI communicates with AGTHub via REST API:
 
-- **Registry Index**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/main.json`
-- **Category Indexes**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/categories/{category}.json`
-- **Featured Agents**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/index/featured.json`
-- **Agent Files**: `https://raw.githubusercontent.com/chameleon-nexus/agents-registry/master/agents/{author}/{id}/{id}_v{version}.md`
+- **Search Agents**: `https://www.agthub.org/api/agents/search`
+- **Download Agent**: `https://www.agthub.org/api/agents/[id]/download`
+- **Publish Agent**: `https://www.agthub.org/api/cli/agents/publish`
+- **Authentication**: `https://www.agthub.org/api/cli/login`
+
+All searches are real-time from the AGTHub database!
 
 ## 🤝 Contributing
 
