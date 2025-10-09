@@ -44,8 +44,8 @@ export class InstallerService {
     // Download agent content
     const content = await this.registryService.downloadAgent(agentId, version);
     
-    // Determine install path
-    const installPath = await this.getInstallPath(target, agentId, version);
+    // Determine install path (pass agent info for author name)
+    const installPath = await this.getInstallPath(target, agentId, version, agent);
     await fs.ensureDir(path.dirname(installPath));
     
     // Write agent file
@@ -123,13 +123,25 @@ export class InstallerService {
     return updates;
   }
 
-  private async getInstallPath(target: string, agentId: string, version: string): Promise<string> {
+  private async getInstallPath(target: string, agentId: string, version: string, agent?: AgentInfo): Promise<string> {
     const homeDir = os.homedir();
     
-    // Extract author and agent name from "author/agent-name" format
-    const [author, agentName] = agentId.includes('/') 
-      ? agentId.split('/') 
-      : ['unknown', agentId];
+    // Get author name from agent info or parse from agentId
+    let author: string;
+    let agentName: string;
+    
+    if (agent && agent.author) {
+      // Use author from API response
+      author = agent.author.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      agentName = agentId;
+    } else if (agentId.includes('/')) {
+      // Parse "author/agent-name" format
+      [author, agentName] = agentId.split('/');
+    } else {
+      // Fallback
+      author = 'unknown';
+      agentName = agentId;
+    }
     
     // Create filename with format: author_agent-name_version.md
     const filename = `${author}_${agentName}_v${version}.md`;
