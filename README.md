@@ -34,12 +34,15 @@ agt --help
 agt login
 
 # 2. Search for agents
-agt search python
+agt search ruby
 
-# 3. Install an agent
-agt install author/agent-name
+# 3. Install an agent (must use author/agent-id format)
+agt install wshobson/ruby-pro
 
-# 4. Create and publish your own agent
+# 4. Uninstall an agent
+agt uninstall wshobson/ruby-pro
+
+# 5. Create and publish your own agent
 agt init
 # ... fill in the metadata ...
 agt publish my-agent.md
@@ -120,33 +123,33 @@ agt search --sort rating
 ### Install Agents
 
 ```bash
-# Install an agent
-agt install author/agent-name
+# Install an agent (author/agent-id format required)
+agt install wshobson/ruby-pro
 
 # Install specific version
-agt install author/agent-name@1.0.0
+agt install wshobson/ruby-pro@1.0.0
 
 # Install to specific target directory
-agt install author/agent-name --target claude-code
-
-# Install multiple agents
-agt install author/agent1 author/agent2
+agt install wshobson/ruby-pro --target claude-code
 
 # Force reinstall (overwrite existing)
-agt install author/agent-name --force
+agt install wshobson/ruby-pro --force
+
+# Installation output example:
+# ✔ Installed wshobson/ruby-pro
+# Installed to: ~/.claude/agents/wshobson_ruby-pro_v1.0.0.md
 ```
+
+> ⚠️ **Important**: Agent ID must be in format `author/agent-id`. Use `agt search` to find the full ID.
 
 ### Uninstall Agents
 
 ```bash
-# Uninstall an agent
-agt uninstall author/agent-name
+# Uninstall an agent (author/agent-id format required)
+agt uninstall wshobson/ruby-pro
 
 # Uninstall from specific target
-agt uninstall author/agent-name --target claude-code
-
-# Uninstall multiple agents
-agt uninstall author/agent1 author/agent2
+agt uninstall wshobson/ruby-pro --target claude-code
 ```
 
 ### Configuration
