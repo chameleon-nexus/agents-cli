@@ -1,6 +1,6 @@
 {
   "name": "@chameleon-nexus/agents-cli",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Command-line interface for managing AI agents from the Chameleon Agents Registry",
   "main": "dist/index.js",
   "bin": {

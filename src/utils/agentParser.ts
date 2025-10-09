@@ -17,7 +17,21 @@ export function parseAgentFile(content: string): Record<string, any> {
       const match = line.match(/^(\w+):\s*(.+)$/);
       if (match) {
         const [, key, value] = match;
-        metadata[key] = value.trim().replace(/^["'](.+)["']$/, '$1'); // Remove quotes
+        let parsedValue: any = value.trim();
+        
+        // Remove quotes
+        parsedValue = parsedValue.replace(/^["'](.+)["']$/, '$1');
+        
+        // Parse arrays: [item1, item2]
+        if (parsedValue.startsWith('[') && parsedValue.endsWith(']')) {
+          parsedValue = parsedValue
+            .slice(1, -1)
+            .split(',')
+            .map((item: string) => item.trim().replace(/^["']|["']$/g, ''))
+            .filter(Boolean);
+        }
+        
+        metadata[key] = parsedValue;
       }
     }
   }

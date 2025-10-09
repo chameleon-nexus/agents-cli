@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import chalk from 'chalk';
+import { initCommand } from './commands/init';
 import { searchCommand } from './commands/search';
 import { installCommand } from './commands/install';
 import { uninstallCommand } from './commands/uninstall';
@@ -22,6 +23,7 @@ program
   .version(packageJson.version);
 
 // Add commands
+program.addCommand(initCommand);
 program.addCommand(loginCommand);
 program.addCommand(publishCommand);
 program.addCommand(searchCommand);
