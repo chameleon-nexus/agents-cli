@@ -1,6 +1,6 @@
 {
   "name": "@chameleon-nexus/agents-cli",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Command-line interface for managing AI agents from AGTHub",
   "main": "dist/index.js",
   "bin": {

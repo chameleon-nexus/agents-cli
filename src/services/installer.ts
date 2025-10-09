@@ -13,7 +13,7 @@ export class InstallerService {
     this.registryService = new RegistryService(registryUrl);
   }
 
-  async installAgent(agentId: string, options: InstallOptions = {}): Promise<void> {
+  async installAgent(agentId: string, options: InstallOptions = {}): Promise<{ version: string; path: string }> {
     const config = await this.configService.getConfig();
     
     // Parse agent ID to extract version if specified
@@ -38,7 +38,7 @@ export class InstallerService {
 
     if (options.dryRun) {
       console.log(`Would install ${agentId}@${version} to ${target}`);
-      return;
+      return { version, path: '' };
     }
 
     // Download agent content
@@ -61,6 +61,8 @@ export class InstallerService {
     });
 
     console.log(`Successfully installed ${agentId}@${version} to ${target}`);
+    
+    return { version, path: installPath };
   }
 
   async uninstallAgent(agentId: string, target?: string): Promise<void> {
@@ -126,24 +128,21 @@ export class InstallerService {
   private async getInstallPath(target: string, agentId: string, version: string, agent?: AgentInfo): Promise<string> {
     const homeDir = os.homedir();
     
-    // Get author name from agent info or parse from agentId
+    // Parse agentId to extract author and agent name
+    // agentId format is always "author/agent-name" (enforced by install command)
     let author: string;
     let agentName: string;
     
-    if (agent && agent.author) {
-      // Use author from API response
-      author = agent.author.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      agentName = agentId;
-    } else if (agentId.includes('/')) {
+    if (agentId.includes('/')) {
       // Parse "author/agent-name" format
       [author, agentName] = agentId.split('/');
     } else {
-      // Fallback
+      // Fallback (should not happen with current validation)
       author = 'unknown';
       agentName = agentId;
     }
     
-    // Create filename with format: author_agent-name_version.md
+    // Create filename with format: author_agent-name_vVersion.md
     const filename = `${author}_${agentName}_v${version}.md`;
     
     switch (target) {

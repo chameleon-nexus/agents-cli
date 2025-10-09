@@ -24,9 +24,12 @@ export const installCommand = new Command('install')
         target: 'claude-code',
       };
 
-      await installer.installAgent(agentId, installOptions);
+      const result = await installer.installAgent(agentId, installOptions);
       spinner.succeed(`Installed ${chalk.green(agentId)}`);
-      console.log(chalk.gray(`Installed to: ~/.agents/${agentId}`));
+      
+      // Extract author and agent name for display
+      const [author, agentName] = agentId.split('/');
+      console.log(chalk.gray(`Installed to: ~/.claude/agents/${author}_${agentName}_v${result.version}.md`));
       
     } catch (error) {
       console.error(chalk.red('Error:'), error instanceof Error ? error.message : String(error));
