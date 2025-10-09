@@ -69,8 +69,14 @@ export class RegistryService {
   }
 
   private transformAgent(apiAgent: any): AgentInfo {
+    const authorName = apiAgent.author?.name || 'unknown';
+    const agentId = apiAgent.agentId;
+    
+    // Create full ID in format "author/agentId" for uniqueness
+    const fullId = `${authorName}/${agentId}`;
+    
     return {
-      id: apiAgent.agentId,
+      id: fullId,
       name: {
         en: apiAgent.name || apiAgent.agentId,
         zh: apiAgent.name_translations?.zh || '',
@@ -81,7 +87,7 @@ export class RegistryService {
         zh: apiAgent.description_translations?.zh || '',
         ja: apiAgent.description_translations?.ja || ''
       },
-      author: apiAgent.author?.name || 'Unknown',
+      author: authorName,
       version: apiAgent.version,
       category: apiAgent.category,
       tags: apiAgent.tags || [],
@@ -144,11 +150,15 @@ export class RegistryService {
       // Parse agent ID to remove version if present
       const { parsedId } = this.parseAgentId(agentId);
       
-      // Search for the specific agent
-      const agents = await this.searchAgents(parsedId);
+      // Extract search term: use only the agentId part (after '/')
+      const searchTerm = parsedId.includes('/') ? parsedId.split('/')[1] : parsedId;
       
-      // Find exact match
+      // Search for the specific agent using just the agentId
+      const agents = await this.searchAgents(searchTerm);
+      
+      // Find exact match by full ID (author/agentId)
       const agent = agents.find(a => a.id === parsedId);
+      
       return agent || null;
     } catch (error) {
       console.error('Error fetching agent details:', error);
@@ -187,12 +197,15 @@ export class RegistryService {
         throw new Error(`Agent ${parsedId} not found`);
       }
 
+      // Extract just the agentId (without author) for API search
+      const agentOnlyId = agent.id.includes('/') ? agent.id.split('/')[1] : agent.id;
+
       // Get the internal database ID
-      const searchResult = await axios.get(`${this.apiUrl}/api/agents/search?q=${parsedId}`);
-      const agentData = searchResult.data.agents?.find((a: any) => a.agentId === parsedId);
+      const searchResult = await axios.get(`${this.apiUrl}/api/agents/search?q=${agentOnlyId}`);
+      const agentData = searchResult.data.agents?.find((a: any) => a.agentId === agentOnlyId);
       
       if (!agentData) {
-        throw new Error(`Agent ${parsedId} not found in AGTHub`);
+        throw new Error(`Agent ${agentOnlyId} not found in AGTHub`);
       }
 
       // Download using AGTHub API
