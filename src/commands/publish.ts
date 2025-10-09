@@ -7,6 +7,16 @@ import axios from 'axios';
 import { ConfigService } from '../services/config';
 import { parseAgentFile } from '../utils/agentParser';
 
+// Helper function to increment version
+function incrementVersion(version: string): string {
+  const parts = version.split('.');
+  if (parts.length === 3) {
+    parts[2] = String(parseInt(parts[2]) + 1);
+    return parts.join('.');
+  }
+  return version;
+}
+
 export const publishCommand = new Command('publish')
   .description('Publish an agent to AGTHub')
   .argument('[file]', 'Agent markdown file to publish', '.cursor/agent.md')
@@ -86,6 +96,39 @@ export const publishCommand = new Command('publish')
       if (metadata.name_en) console.log(chalk.gray('Name (EN):'), chalk.cyan(metadata.name_en));
       if (metadata.name_zh) console.log(chalk.gray('Name (ZH):'), chalk.cyan(metadata.name_zh));
       console.log();
+
+      // Check if agent already exists
+      try {
+        const checkResponse = await axios.get(
+          `${apiUrl}/api/cli/agents/check/${metadata.id}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            }
+          }
+        );
+
+        if (checkResponse.data?.exists) {
+          const existingAgent = checkResponse.data.agent;
+          console.log(chalk.yellow('⚠️  Agent already exists'));
+          console.log(chalk.gray('   Current version:'), chalk.cyan(existingAgent.version));
+          console.log(chalk.gray('   New version:'), chalk.cyan(metadata.version));
+          
+          if (existingAgent.version === metadata.version) {
+            console.log(chalk.yellow('\n💡 Same version detected. Publishing will replace the existing agent.'));
+            console.log(chalk.gray('   Consider incrementing the version number for better tracking:'));
+            console.log(chalk.gray('   Example: Change'), chalk.cyan(`version: ${metadata.version}`), chalk.gray('to'), chalk.cyan(`version: ${incrementVersion(metadata.version)}`));
+            console.log();
+          } else {
+            console.log(chalk.green('\n✓ New version will replace the old one\n'));
+          }
+        }
+      } catch (error: any) {
+        // Agent doesn't exist or check failed, continue
+        if (error.response?.status !== 404) {
+          // Silently continue if check fails
+        }
+      }
 
       // Prepare form data
       const formData = new FormData();
