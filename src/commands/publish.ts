@@ -71,8 +71,11 @@ export const publishCommand = new Command('publish')
       }
 
       if (errors.length > 0) {
-        spinner.fail('Validation failed');
+        console.log(chalk.red('✖ Validation failed'));
+        console.log(chalk.yellow('\n⚠️  Missing metadata in agent file\n'));
         errors.forEach(error => console.error(chalk.red(`  • ${error}`)));
+        console.log(chalk.gray('\n💡 Tip: Use'), chalk.cyan('agt init'), chalk.gray('to create a properly formatted agent file'));
+        console.log(chalk.gray('   Then edit the file and add your agent content\n'));
         process.exit(1);
       }
 
@@ -139,17 +142,23 @@ export const publishCommand = new Command('publish')
         publishSpinner.fail('Publish failed');
         
         if (error.response?.status === 401) {
-          console.error(chalk.red('Authentication failed. Please run'), chalk.yellow('agt login'), chalk.red('again'));
+          console.error(chalk.red('\n❌ Authentication failed'));
+          console.log(chalk.gray('Please run'), chalk.cyan('agt login'), chalk.gray('again\n'));
         } else if (error.response?.status === 409) {
-          console.error(chalk.red('Agent already exists with this version'));
-          console.log(chalk.gray('  Tip: Increment the version number in your agent file'));
+          console.error(chalk.red('\n❌ Agent already exists'));
+          console.log(chalk.yellow(`\n⚠️  An agent with ID "${metadata.id}" and version "${metadata.version}" already exists`));
+          console.log(chalk.gray('\n💡 To publish a new version:'));
+          console.log(chalk.gray('   1. Update the version in your agent file'));
+          console.log(chalk.gray('      Example: Change'), chalk.cyan('version: 1.0.0'), chalk.gray('to'), chalk.cyan('version: 1.0.1'));
+          console.log(chalk.gray('   2. Run'), chalk.cyan('agt publish'), chalk.gray('again\n'));
         } else if (error.response?.data?.error) {
-          console.error(chalk.red(error.response.data.error));
+          console.error(chalk.red('\n❌'), error.response.data.error, '\n');
         } else {
-          console.error(chalk.red('Failed to publish agent. Please try again.'));
+          console.error(chalk.red('\n❌ Failed to publish agent'));
           if (error.message) {
             console.error(chalk.gray(error.message));
           }
+          console.log(chalk.gray('\nPlease try again or check your network connection\n'));
         }
         process.exit(1);
       }

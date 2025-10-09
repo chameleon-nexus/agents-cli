@@ -1,16 +1,4 @@
----
-id: test112
-version: 1.0.0
-category: core-architecture
-name_en: test112
-description_en: test112
-tags: [test112, core-architecture]
-license: MIT
----
 
-# test112
-
-test112
 
 ## Features
 
