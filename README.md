@@ -283,29 +283,6 @@ npm test
 npm run lint
 ```
 
-## 📦 Publishing (for maintainers)
-
-```bash
-# Build and publish to npm
-npm run build
-npm publish --access public
-
-# Create git tag for release
-git tag v2.0.0
-git push origin v2.0.0
-```
-
-## 🌐 API Endpoints
-
-The CLI communicates with AGTHub via REST API:
-
-- **Search**: `https://www.agthub.org/api/agents/search`
-- **Download**: `https://www.agthub.org/api/agents/[id]/download`
-- **Publish**: `https://www.agthub.org/api/cli/agents/publish`
-- **Login**: `https://www.agthub.org/api/cli/login`
-
-All operations are real-time and synced with the AGTHub database!
-
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
