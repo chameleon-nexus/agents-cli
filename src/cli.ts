@@ -5,9 +5,7 @@ import chalk from 'chalk';
 import { searchCommand } from './commands/search';
 import { installCommand } from './commands/install';
 import { uninstallCommand } from './commands/uninstall';
-import { listCommand } from './commands/list';
-import { updateCommand } from './commands/update';
-import { configCommand } from './commands/config';
+import { urlCommand } from './commands/url';
 import { loginCommand } from './commands/login';
 import { publishCommand } from './commands/publish';
 import { readFileSync } from 'fs';
@@ -20,11 +18,8 @@ const program = new Command();
 
 program
   .name('agt')
-  .description('AGT - AI Agent Management Tool for Chameleon Registry')
-  .version(packageJson.version)
-  .option('-v, --verbose', 'verbose output')
-  .option('--registry <url>', 'registry URL')
-  .option('--config <path>', 'config file path');
+  .description('AGT - AI Agent Management Tool')
+  .version(packageJson.version);
 
 // Add commands
 program.addCommand(loginCommand);
@@ -32,9 +27,7 @@ program.addCommand(publishCommand);
 program.addCommand(searchCommand);
 program.addCommand(installCommand);
 program.addCommand(uninstallCommand);
-program.addCommand(listCommand);
-program.addCommand(updateCommand);
-program.addCommand(configCommand);
+program.addCommand(urlCommand);
 
 // Global error handler
 process.on('uncaughtException', (error) => {
