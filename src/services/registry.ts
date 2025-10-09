@@ -54,7 +54,8 @@ export class RegistryService {
       if (filters.sortBy) params.append('sort', filters.sortBy);
       if (filters.limit) params.append('limit', filters.limit.toString());
 
-      const url = `${this.apiUrl}/api/agents/search?${params.toString()}`;
+      // Use CLI-specific API endpoint that only returns free agents
+      const url = `${this.apiUrl}/api/cli/agents/search?${params.toString()}`;
       const response = await axios.get(url);
       
       const agents = response.data.agents || [];
